@@ -19,6 +19,7 @@
 // PurpleTeam
 #include "PurpleTeam.h"
 #include "hProcessx.h"
+#include "hFilex.h"
 
 
 
@@ -29,7 +30,10 @@
     int main(int argc, char* pidd[])
     {
         TCHAR    workingdir[MAX_PATH];
+
         HANDLERS accountHandle = HANDLERS();
+        
+        UNI_VARS from_main; // struct used for much much later in development.
         
         
         DWORD pid = atoi(pidd[1]);
@@ -76,7 +80,7 @@
 
         if (GetModuleFileNameEx(process, NULL, workingdir, MAX_PATH)) {
           
-            
+            std::wcout << "\nFilename = " << workingdir << std::endl;
             
             accountHandle.hFile = CreateFileW(
                 (LPCWSTR)workingdir, // Need to find way to convert TCHAR to LPCSTR
@@ -87,10 +91,9 @@
                 FILE_ATTRIBUTE_NORMAL,
                 NULL
             );
+            from_main.fileName = workingdir;
 
 
-
-            /* NEED TO FIND WAY TO CONVERT TCHAR TO LPCSTR! */
 
 
 
@@ -99,23 +102,31 @@
 
                 accountHandle.error_c = ::GetLastError();
                 reportError(accountHandle.error_c);
+                
             }
             else {
 
+                
                 DWORD getFilesz;
                 getFilesz = GetFileSize(accountHandle.hFile, NULL);
 
+
                 if (getFilesz != INVALID_FILE_SIZE) {
-                    //  BYTE bytes[sizeof(DWORD)];
-                    //  memcpy(bytes, &fileSize, sizeof(DWORD));
-                    //_tprintf(TEXT("File size = %10d Mb\n"), getFilesz / 1024 / 1024);
-                    accountHandle.sizeOfFile = getFilesz / 1024 / 1024;
+                    
+                    //accountHandle.sizeOfFile = getFilesz / 1024 / 1024;
+                    _tprintf(TEXT("File size = %10d Mb\n"), getFilesz / 1024 / 1024);
+
+                    from_main.sizeOfFile = getFilesz;
+                    
+
                 }
                 else {
+                    printf("File Size = Can't find!\n");
                     accountHandle.error_c = ::GetLastError();
                     reportError(accountHandle.error_c);
                     CloseHandle(process);
                 }
+                
             }
             
         }
@@ -190,18 +201,20 @@
         );
 
       
+        /* Display group that owns file */
 
 
         if (accountHandle.bRtnBool == TRUE) {
 
 
-            _tprintf(TEXT("Account/Owner = %s\n"), accountHandle.AcctName);
+            _tprintf(TEXT("Group/Owner = %s\n"), accountHandle.AcctName);
             CloseHandle(accountHandle.hFile);
 
             
         }
 
         
+        /* Catch IF critical */
 
 
         getCriticalState = &findOutCritStatus;
@@ -212,8 +225,15 @@
 
 
             printf("Critical = True");
-            std::wcout << "\nFilename = " << workingdir << std::endl;
-            _tprintf(TEXT("File size = %10d Mb\n"), accountHandle.sizeOfFile / 1024 / 1024);
+            
+
+
+            
+
+
+            /* Catch priority level */
+
+
             getPriorityLevel = &priorityLevel;
             (*getPriorityLevel)(process);
 
@@ -224,8 +244,14 @@
 
 
             printf("Critical = False");
-            std::wcout << "\nFilename = " << workingdir << std::endl;
-            _tprintf(TEXT("File size = %10d Mb\n"), accountHandle.sizeOfFile / 1024 / 1024);
+            
+
+
+            
+
+            /* Catch priority level */
+            
+
             getPriorityLevel = &priorityLevel;
             (*getPriorityLevel)(process);
         }
@@ -233,20 +259,77 @@
 
 
 
-
-        
-
-            
-        
+        CloseHandle(accountHandle.hFile);       //  This handle is no longer used ...
 
 
+        HANDLE fileTypeHandle = CreateFileW(    //  new handle for grabing different types of values.
+            (LPCWSTR)workingdir, 
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            NULL,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL
+        );
 
 
 
-        /* Instead of passing around handles, just gonna make a new one with the raw input DWORD */
+
+
+
+
+
+
+        /* Start of catching file property chain */
+
+        lastError *error = new lastError();
+
+        if (error->last == NO_ERROR) {
+
+            DWORD typeof = catchFileType(fileTypeHandle);
+
+            switch (typeof) {
+
+            case 0x0002:
+                std::cout << "\nFile type = Character / LPT device OR console" << std::endl;
+                break;
+            case 0x0001:
+                std::cout << "\nFile type = Disk" << std::endl;
+                break;
+            case 0x0003:
+                std::cout << "\nFile type = Socket, named pipe, or anonymous pipe" << std::endl;
+                break;
+            case 0x8000:
+                std::cout << "\nFile type = Unused / FILE_TYPE_REMOTE" << std::endl;
+                break;
+            case 0x0000:
+                std::cout << "\nFile type = Unknown" << std::endl;
+                break;
+
+            default:
+                std::cout << "\nFile type = Issue with matching values!" << std::endl;
+                break;
+            }
+        }
+        else {
+            std::cout << "\nFile type = Can't read!" << std::endl;
+        }
+
+        delete error;
+
+
+
+
+        /* Listing 32bit modules loaded into process */
+
         if (!getProcessModules(pid)) {
             printf("\n<!>\t\t\tFailed catching modules!\n");
         }
+
+
+        accountHandle = { };
+        //  delete accountHandle;
+
         
         system("pause");
 
