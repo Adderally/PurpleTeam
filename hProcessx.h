@@ -9,7 +9,9 @@
 #include <iostream>
 
 #include"hError.h"
-		
+
+typedef BOOL(WINAPI* LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+
 bool getProcessModules(DWORD pid);
 
 void priorityLevel(HANDLE proc);

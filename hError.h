@@ -4,4 +4,9 @@
 #include <iostream>
 #include <string>
 
+struct lastError {
+	DWORD last;
+};
+
+
 void reportError(DWORD err);

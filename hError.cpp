@@ -29,8 +29,18 @@ void reportError(DWORD err) {
 		std::string errorMessage(returnMessageBuff, size);
 		LocalFree(returnMessageBuff);
 
-		std::cout << "\n[System]\t" << errorMessage << std::endl;
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
+		std::cout << "\n\n[System]\t";
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+		std::cout << errorMessage << std::endl;
 	}
-	else
-		std::cout << "\n[System]\t" << "Unknown error!" << std::endl;
+	/*
+	else {
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
+		std::cout << "\n\n[System]\t";
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+		std::cout << "Unknown error!" << std::endl;
+
+	}
+	*/
 }

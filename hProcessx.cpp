@@ -14,26 +14,26 @@ void priorityLevel(HANDLE proc) {
 	switch (priorityLevel) {
 
 	case 0x00008000:
-		printf("Priority = Above Normal");
+		printf("\nPriority = Above Normal");
 		break;
 	case 0x00004000:
-		printf("Priority = Below Normal");
+		printf("\nPriority = Below Normal");
 		break;
 	case 0x00000080:
-		printf("Priority = High");
+		printf("\nPriority = High");
 		break;
 	case 0x00000040:
-		printf("Priority = IDLE/Inactive");
+		printf("\nPriority = IDLE/Inactive");
 		break;
 	case 0x00000020:
-		printf("Priority = Normal");
+		printf("\nPriority = Normal");
 		break;
 	case 0x00000100:
-		printf("Priority = Realtime");
+		printf("\nPriority = Realtime");
 		break;
 
 	default:
-		printf("Priority = Can't find!");
+		printf("\nPriority = Can't find!");
 		break;
 	}
 }
@@ -85,20 +85,38 @@ bool getProcessModules(DWORD pid) {
         
     }
     else {
+   
+        LPFN_ISWOW64PROCESS fnIsWow64Process;
+        BOOL is64 = FALSE;
 
-        BOOL f64 = 0;
+        fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
+            GetModuleHandle(TEXT("kernel32")),
+            "IsWow64Process"
+        );
 
-        if (IsWow64Process(proc, &f64))
-            printf("\nProcess architecture = 64bit\n");
+        if (NULL != fnIsWow64Process)
+        {
+            if (!fnIsWow64Process(GetCurrentProcess(), &is64))
+            {
+                DWORD err = ::GetLastError();
+                reportError(err);
+            }
+        }
+
+        if (is64)
+            printf("\nProcess architecture = 32bit");
         else
-            printf("\nProcess architecture = 32bit\n");
-    }
+            printf("\nProcess architecture = 64bit");
 
+    }
+    
     int counter = -1;
 
-    std::cout << "\n[Catching loaded modules in process]\n\n";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
+    std::cout << "\n\n/* Catching loaded modules in process */\n\n";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 
-    if (EnumProcessModulesEx(proc, hMods, sizeof(hMods), &cbNeeded, LIST_MODULES_64BIT))
+    if (EnumProcessModulesEx(proc, hMods, sizeof(hMods), &cbNeeded, LIST_MODULES_32BIT))
     {
         for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
         {

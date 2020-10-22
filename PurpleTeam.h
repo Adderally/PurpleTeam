@@ -1,9 +1,20 @@
 #pragma once
+#include <cstddef>
 
 enum ERROR_CODES {
 
 	FILE_EXISTS = 1
 };
+
+
+
+
+typedef struct uniVars {
+    DWORD sizeOfFile = NULL;    //    Reps size of the given file.
+    TCHAR* fileName = NULL;     //    Reps File name, same as TCHAR xxx[buff].
+}UNI_VARS;
+
+
 
 
 struct HANDLERS {
@@ -19,7 +30,7 @@ struct HANDLERS {
     HANDLE hFile;
     PSECURITY_DESCRIPTOR pSD = NULL;
 
-    int sizeOfFile = 0;
+    
 };
 
 bool (*getCriticalState)(HANDLE);
