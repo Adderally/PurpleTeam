@@ -2,6 +2,7 @@
 
 
 
+
 DWORD
 catchFileType(HANDLE file) {
 
@@ -208,6 +209,81 @@ catchFileInfo(HANDLE file) {
 		return false;
 
 	}
+
+}
+
+
+
+bool
+displayFileNameSize(HANDLE process) {
+
+	TCHAR workingdir[MAX_PATH];
+	DWORD err = 0;
+
+	if (GetModuleFileNameEx(process, NULL, workingdir, MAX_PATH)) {
+
+		std::wcout << "\nFilename = " << workingdir << std::endl;
+
+		HANDLE file = CreateFileW(
+			(LPCWSTR)workingdir, // Need to find way to convert TCHAR to LPCSTR
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL
+		);
 		
 
+
+
+
+
+
+		if (file == INVALID_HANDLE_VALUE) {
+
+			err = ::GetLastError();
+			reportError(err);
+
+		}
+		else {
+
+
+			DWORD getFilesz;
+			getFilesz = GetFileSize(file, NULL);
+
+
+			if (getFilesz != INVALID_FILE_SIZE) {
+
+				
+				_tprintf(TEXT("File size = %d Mb"), (double)getFilesz / 1024 / 1024);
+
+				
+
+
+			}
+			else {
+				printf("File Size = Can't find!\n");
+				err = ::GetLastError();
+				reportError(err);
+
+
+				CloseHandle(process);
+				return FALSE;
+			}
+
+		}
+
+	}
+	else {
+		printf("File Size = Can't find!\n");
+		err = ::GetLastError();
+		reportError(err);
+
+
+		CloseHandle(process);
+		return FALSE;
+	}
+
+	return TRUE;
 }

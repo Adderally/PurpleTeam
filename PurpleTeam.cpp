@@ -42,10 +42,13 @@
 
 
         process = OpenProcess(
-            PROCESS_ALL_ACCESS, FALSE,
+            PROCESS_QUERY_INFORMATION |
+            PROCESS_VM_READ,
+            FALSE,
             pid
         );
 
+        /* NEED TO FIX */
         
 
         if (process == NULL) {
@@ -56,7 +59,8 @@
             printf(" \tTrying again with lower permissions!\n");
             
             process = OpenProcess(
-                PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+                PROCESS_QUERY_INFORMATION | 
+                PROCESS_VM_READ,
                 FALSE,
                 pid
             );
@@ -75,7 +79,7 @@
         }
 
 
-        /* Opening a handle to the file, using OPEN_EXISTING because... if it's running it should exist, right????? lol */
+        /* Opening a handle to the file, using OPEN_EXISTING because... if it's running it should exist, right????? lol 
 
 
         if (GetModuleFileNameEx(process, NULL, workingdir, MAX_PATH)) {
@@ -135,11 +139,20 @@
             reportError(accountHandle.error_c);
             CloseHandle(process);
         }
+        */
 
         
         
 
-        
+        accountHandle.hFile = CreateFileW(
+            (LPCWSTR)workingdir, // Need to find way to convert TCHAR to LPCSTR
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            NULL,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL
+        );
        
         
         
@@ -213,6 +226,13 @@
             
         }
 
+
+
+        
+
+
+
+
         
         /* Catch IF critical */
 
@@ -234,9 +254,7 @@
             /* Catch priority level */
 
 
-            getPriorityLevel = &priorityLevel;
-            (*getPriorityLevel)(process);
-
+            priorityLevel(process, pid);
             
         }
         else {
@@ -252,14 +270,33 @@
             /* Catch priority level */
             
 
-            getPriorityLevel = &priorityLevel;
-            (*getPriorityLevel)(process);
+            priorityLevel(process, pid);
+            
         }
 
 
 
-
         CloseHandle(accountHandle.hFile);       //  This handle is no longer used ...
+
+
+
+
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+        printf("\n\n[File information]");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+
+
+
+
+
+        if (GetModuleFileNameEx(process, NULL, workingdir, MAX_PATH)) {
+
+            if (process != NULL)
+                displayFileNameSize(process);
+            //  TODO
+        }
+
+
 
 
         HANDLE fileTypeHandle = CreateFileW(    //  new handle for grabing different types of values.
@@ -273,6 +310,8 @@
         );
 
 
+
+        
 
 
 

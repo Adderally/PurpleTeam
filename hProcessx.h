@@ -3,17 +3,37 @@
 #include <stdio.h>
 #include <Windows.h>
 #include <tchar.h>
+#include <tlhelp32.h>
 #include <winver.h>
 #include <string>
 #include <Psapi.h>
 #include <iostream>
 
-#include"hError.h"
+#include"hError.h" // reportError
 
-typedef BOOL(WINAPI* LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
-bool getProcessModules(DWORD pid);
 
-void priorityLevel(HANDLE proc);
 
-bool findOutCritStatus(HANDLE proc);
+enum hTHREAD_FAIL_TYPES {
+
+	FAILED_HANDLE = 2,
+	FAILED_FIRST  = 3
+};
+
+
+
+
+typedef BOOL(WINAPI* LPFN_ISWOW64PROCESS)
+(HANDLE, PBOOL);
+
+bool 
+getProcessModules(DWORD pid);
+
+void 
+priorityLevel(HANDLE proc, DWORD pid);
+
+bool 
+findOutCritStatus(HANDLE proc);
+
+int
+getThreadCount(DWORD proc);

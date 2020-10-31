@@ -1,5 +1,7 @@
 #pragma once
+
 #include <cstddef>
+
 
 enum ERROR_CODES {
 
@@ -34,4 +36,3 @@ struct HANDLERS {
 };
 
 bool (*getCriticalState)(HANDLE);
-void (*getPriorityLevel)(HANDLE);

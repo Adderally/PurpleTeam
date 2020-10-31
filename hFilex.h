@@ -2,6 +2,8 @@
 
 #include<Windows.h>
 #include<fileapi.h>
+#include <Psapi.h>
+#include <tchar.h>>
 
 #include "hError.h"		//  For reportError
 
@@ -16,3 +18,6 @@ catchFileInfo(HANDLE file);
 
 void
 displayFileAttType(ULONG fileAtt);
+
+bool
+displayFileNameSize(HANDLE process);
