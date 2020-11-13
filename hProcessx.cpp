@@ -36,12 +36,15 @@ void priorityLevel(HANDLE proc, DWORD pid) {
 		printf("\nPriority = Can't find!");
 		break;
 	}
+    
+   // getProcessCreationTime(proc);
 
-
+    
     if (getThreadCount(pid) != 1) {
 
         printf("\n<!>\t\t\tFailed building handle!!\n");
     }
+    
 }
 
 
@@ -200,13 +203,29 @@ getThreadCount(DWORD proc) {
                 _tprintf(TEXT("[%d] Thread ID = 0x%08X\n"),tcount, threads.th32ThreadID);
                 // Need to find way to cross reference thread priority with process priority
                 // https://docs.microsoft.com/en-us/windows/win32/procthread/scheduling-priorities shows that each value can mean something different depending on process priority.
-                _tprintf(TEXT("   Priority  = %d\n\n"), threads.tpBasePri);
+                _tprintf(TEXT("    Priority  = %d\n\n"), threads.tpBasePri);
                 
 
                 tcount += 1;
             }
         } while (Thread32Next(thread_snap, &threads));
     }
+
+
     CloseHandle(thread_snap);
     return 1;
+}
+
+
+
+
+
+
+
+bool
+getProcessCreationTime(HANDLE proc) {
+
+    
+
+    return true;
 }

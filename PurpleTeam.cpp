@@ -29,6 +29,7 @@
 
     int main(int argc, char* pidd[])
     {
+
         TCHAR    workingdir[MAX_PATH];
 
         HANDLERS accountHandle = HANDLERS();

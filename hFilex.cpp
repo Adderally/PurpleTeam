@@ -174,13 +174,13 @@ catchFileInfo(HANDLE file) {
 
 
 		printf("\nFile last access time = ");
-		if(!PrintDate(information_class.LastAccessTime))
+		if (!PrintDate(information_class.LastAccessTime))
 			printf("Can't find!");
 
 
 
 		printf("\nFile creation time = ");
-		if(!PrintDate(information_class.CreationTime))
+		if (!PrintDate(information_class.CreationTime))
 			printf("Can't find!");
 
 
@@ -233,10 +233,14 @@ displayFileNameSize(HANDLE process) {
 			FILE_ATTRIBUTE_NORMAL,
 			NULL
 		);
-		
 
 
 
+		if (getNetDriveStatus((LPCSTR)workingdir) == 2) {
+
+			err = ::GetLastError();
+			reportError(err);
+		}
 
 
 
@@ -256,7 +260,7 @@ displayFileNameSize(HANDLE process) {
 			if (getFilesz != INVALID_FILE_SIZE) {
 
 				
-				_tprintf(TEXT("File size = %d Mb"), (double)getFilesz / 1024 / 1024);
+				_tprintf(TEXT("File size = %d Kb"), (double)getFilesz / 1024 / 1024 / 1024);
 
 				
 
@@ -286,4 +290,81 @@ displayFileNameSize(HANDLE process) {
 	}
 
 	return TRUE;
+}
+
+
+
+
+
+
+int 
+getNetDriveStatus(LPCSTR path) {
+
+	/*
+
+	* // Guess i started working on a method that doesn't work well with modern windows.
+
+	const char* possibleDrives = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	int driveM = 0;
+
+	for (char c = *possibleDrives; c; c = *++possibleDrives) {
+
+		// driveM += 1
+	}
+	return 1;
+	*/
+
+	UINT driveReturn = GetDriveTypeA((LPCSTR)path[3]);
+	DWORD err = 0;
+
+	switch (driveReturn) {
+
+	case 0:
+		printf("\nDrive type = UNKNOWN");
+		break;
+
+	case 1:
+		printf("\nDrive type = No volume found!");
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
+		std::cout << "\t// INVALID_PATH\n";
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+		break;
+
+	case 2:
+		printf("\nDrive type = Removable");
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
+		std::cout << "\t// Floppy, USB, flash card reader\n";
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+		break;
+
+	case 3:
+		printf("\nDrive type = Fixed");
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
+		std::cout << "\t// HDD, SSD, USB\n";
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+		break;
+
+	case 4:
+		printf("\nDrive type = REMOTE");
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
+		std::cout << "\t// Network drive, local NAS?\n";
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+		break;
+
+	case 5:
+		printf("\nDrive type = CD-ROM");
+		break;
+
+	case 6:
+		printf("\nDrive type = RAMDISK");
+		break;
+
+	default:
+		printf("Drive type = Could not find!");
+		
+
+		return 2;
+	}
+
+	return 0;
 }

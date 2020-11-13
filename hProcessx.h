@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include"hError.h" // reportError
+#include"hFilex.h" // printData
 
 
 
@@ -37,3 +38,7 @@ findOutCritStatus(HANDLE proc);
 
 int
 getThreadCount(DWORD proc);
+
+
+bool
+getProcessCreationTime(HANDLE proc);

@@ -21,3 +21,10 @@ displayFileAttType(ULONG fileAtt);
 
 bool
 displayFileNameSize(HANDLE process);
+
+/* Only for formating  getProcessCreationTime(...) in 'hProcessx.cpp'*/
+bool
+PrintDate(LARGE_INTEGER Date);
+
+
+int getNetDriveStatus(LPCSTR path);
